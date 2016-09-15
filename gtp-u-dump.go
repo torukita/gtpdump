@@ -17,16 +17,26 @@ var (
     err          error
     timeout      time.Duration = 10 * time.Second
     handle       *pcap.Handle
+	debug bool
+	pcapFile string
+	device string
 )
 
 func main() {
-     debug := flag.Bool("debug", false, "debug option")
-     flag.Parse()
-     device := flag.Args()[0]
-     fmt.Printf("device=%s\n", device)
-     fmt.Println(*debug)
-
-    handle, err = pcap.OpenLive(device, snapshot_len, promiscuous, timeout)
+	flag.BoolVar(&debug, "debug", false, "debug option")
+	flag.StringVar(&pcapFile, "f", "", "pcap file")
+	flag.Parse()
+	if len(flag.Args()) != 0 {
+        device = flag.Args()[0]
+    }
+	fmt.Printf("device=%s\n", device)
+	fmt.Println(debug)
+	fmt.Println(pcapFile)
+	if pcapFile != "" {
+		handle, err = pcap.OpenOffline(pcapFile)
+	} else {
+		handle, err = pcap.OpenLive(device, snapshot_len, promiscuous, timeout)
+	}
     if err != nil {
         log.Fatal(err)
     }
